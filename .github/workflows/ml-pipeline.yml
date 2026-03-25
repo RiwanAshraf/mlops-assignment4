@@ -75,4 +75,5 @@ jobs:
 
       # 6️ Mock Docker build if threshold met
       - name: Mock Docker Build
-        run: echo "Building Docker image for Run ID: $(cat model_info.txt)"
+        run: |
+          echo "Building Docker image for Run ID: $(cat model_info.txt)"
