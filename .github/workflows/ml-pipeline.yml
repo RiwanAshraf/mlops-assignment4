@@ -9,33 +9,29 @@ jobs:
 
   validate:
     runs-on: ubuntu-latest
-
     steps:
-      # 1️ Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2️ Set up Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      # 3️ Install dependencies
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
-      # 4️ Pull data with DVC
+      - name: Install DVC
+        run: pip install dvc
+
       - name: Pull Data
         run: dvc pull
 
-      # 5️ Run training and log to MLflow
       - name: Train Model
         env:
           MLFLOW_URI: ${{ secrets.MLFLOW_URI }}
         run: python train.py
 
-      # 6️ Upload run ID artifact
       - name: Upload model info
         uses: actions/upload-artifact@v4
         with:
