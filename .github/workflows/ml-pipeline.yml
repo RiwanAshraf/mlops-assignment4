@@ -10,7 +10,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      # 1. Checkout the repository
+      # 1. Checkout repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -37,11 +37,18 @@ jobs:
           name: model-info
           path: model_info.txt
 
+      # 6. Upload MLflow DB artifact
+      - name: Upload MLflow DB
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlflow-db
+          path: mlflow.db
+
   deploy:
     needs: validate
     runs-on: ubuntu-latest
     steps:
-      # 1. Checkout the repository
+      # 1. Checkout repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -61,13 +68,19 @@ jobs:
         with:
           name: model-info
 
-      # 5. Validate accuracy threshold
+      # 5. Download MLflow DB artifact
+      - name: Download MLflow DB
+        uses: actions/download-artifact@v4
+        with:
+          name: mlflow-db
+
+      # 6. Validate accuracy threshold
       - name: Validate Accuracy
         env:
-          MLFLOW_URI: ${{ secrets.MLFLOW_URI }}
+          MLFLOW_URI: sqlite:///mlflow.db
         run: python check_threshold.py
 
-      # 6. Mock Docker build if threshold met
+      # 7. Mock Docker build if threshold met
       - name: Mock Docker Build
         run: |
           echo "Building Docker image for Run ID: $(cat model_info.txt)"
