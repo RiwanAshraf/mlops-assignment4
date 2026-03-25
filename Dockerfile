@@ -9,7 +9,7 @@ RUN pip install dvc[s3]  # change if needed
 
 # Pull the trained model from your repo
 RUN mkdir -p /app/model
-RUN dvc get https://github.com/<YourUsername>/mlops-assignment4 model -o /app/model
+RUN dvc get https://github.com/RiwanAshraf/mlops-assignment4 model -o /app/model
 
 # Copy your code
 COPY . .
