@@ -4,7 +4,6 @@ on:
   push:
     branches-ignore:
       - main
-  pull_request:
 
 jobs:
 
@@ -12,20 +11,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️ Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 2️ Set up Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
+      # 3️ Install dependencies
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
-      - name: Train Model
-        run: python Build_my_first_GAN.py
+      # 4️ Pull data with DVC
+      - name: Pull Data
+        run: dvc pull
 
+      # 5️ Run training and log to MLflow
+      - name: Train Model
+        env:
+          MLFLOW_URI: ${{ secrets.MLFLOW_URI }}
+        run: python train.py
+
+      # 6️ Upload run ID artifact
       - name: Upload model info
         uses: actions/upload-artifact@v4
         with:
@@ -37,25 +47,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️ Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 2️ Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # 3️ Install dependencies
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      # 4️ Download the run ID artifact
       - name: Download model info
         uses: actions/download-artifact@v4
         with:
           name: model-info
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
-
-      - name: Check accuracy threshold
+      # 5️ Check accuracy threshold
+      - name: Validate Accuracy
+        env:
+          MLFLOW_URI: ${{ secrets.MLFLOW_URI }}
         run: python check_threshold.py
 
+      # 6️ Mock Docker build if threshold met
       - name: Mock Docker Build
-        run: |
-          echo "Building Docker image for Run ID: $(cat model_info.txt)"
+        run: echo "Building Docker image for Run ID: $(cat model_info.txt)"
