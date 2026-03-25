@@ -130,8 +130,8 @@ with mlflow.start_run():
     print("Run complete — model saved to MLflow artifacts.")
 
 
-run_id = mlflow.active_run().info.run_id
-with open("model_info.txt", "w") as f:
-    f.write(run_id)
+    run_id = mlflow.active_run().info.run_id
+    with open("model_info.txt", "w") as f:
+        f.write(run_id)
 
-print(f"Run ID saved to model_info.txt: {run_id}")
+    print(f"Run ID saved to model_info.txt: {run_id}")
