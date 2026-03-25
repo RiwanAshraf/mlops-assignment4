@@ -86,6 +86,8 @@ jobs:
           MLFLOW_URI: sqlite:///mlflow.db
         run: python check_threshold.py
 
+
+      
       # 6. Build Docker image with the trained model
       - name: Build Docker Image
         run: |

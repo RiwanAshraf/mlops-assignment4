@@ -3,3 +3,5 @@ torchvision
 tensorflow
 mlflow
 flake8
+pytorch-lightning
+dvc

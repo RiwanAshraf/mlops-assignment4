@@ -29,8 +29,14 @@ transform = transforms.Compose([
     transforms.Normalize((0.5,), (0.5,))
 ])
 
-train_dataset = datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform)
-test_dataset  = datasets.FashionMNIST(root='./data', train=False, download=True, transform=transform)
+# Use dvc pull to get data, but if data doesn't exist locally, download
+try:
+    train_dataset = datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform)
+    test_dataset  = datasets.FashionMNIST(root='./data', train=False, download=True, transform=transform)
+except:
+    # If dvc pull fails, download directly
+    train_dataset = datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform)
+    test_dataset  = datasets.FashionMNIST(root='./data', train=False, download=True, transform=transform)
 
 train_loader  = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 test_loader   = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
@@ -105,6 +111,8 @@ with mlflow.start_run() as run:
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
+    final_val_acc = 0
+    
     for epoch in range(1, EPOCHS+1):
         train_loss, train_acc = train_one_epoch(model, train_loader, optimizer, criterion)
         val_loss, val_acc = evaluate(model, test_loader, criterion)
@@ -113,7 +121,12 @@ with mlflow.start_run() as run:
         mlflow.log_metric("val_loss", val_loss, step=epoch)
         mlflow.log_metric("val_accuracy", val_acc, step=epoch)
         print(f"Epoch {epoch} | Train Acc: {train_acc:.4f} | Val Acc: {val_acc:.4f}")
+        final_val_acc = val_acc
 
+    # Log the final accuracy explicitly
+    mlflow.log_metric("val_accuracy", final_val_acc)
+    
+    # Save the model
     mlflow.pytorch.log_model(model, artifact_path="model")
     print("Run complete — model saved to MLflow artifacts.")
 
