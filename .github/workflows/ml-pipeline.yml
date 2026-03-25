@@ -4,20 +4,6 @@ on:
   push:
     branches-ignore:
       - main
-  pull_request:
-
-jobs:
-
-  validate:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repositoryname: Assignment 5 Pipeline
-
-on:
-  push:
-    branches-ignore:
-      - main
 
 jobs:
 
@@ -63,48 +49,4 @@ jobs:
         run: python check_threshold.py
 
       - name: Mock Docker Build
-        run: echo "Building Docker image for Run ID: $(cat model_info.txt)"
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
-
-      - name: Pull Data
-        run: dvc pull
-
-      - name: Train Model
-        run: python train.py
-
-      - name: Save Run ID
-        run: echo "run-123" > model_info.txt
-
-      - name: Upload model info
-        uses: actions/upload-artifact@v4
-        with:
-          name: model-info
-          path: model_info.txt
-
-
-  deploy:
-    needs: validate
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Download model info
-        uses: actions/download-artifact@v4
-        with:
-          name: model-info
-
-      - name: Check accuracy threshold
-        run: python check_threshold.py
-
-      - name: Mock Docker build
         run: echo "Building Docker image for Run ID: $(cat model_info.txt)"
