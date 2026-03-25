@@ -24,8 +24,6 @@ jobs:
       - name: Install DVC
         run: pip install dvc
 
-      - name: Pull Data
-        run: dvc pull
 
       - name: Train Model
         env:
